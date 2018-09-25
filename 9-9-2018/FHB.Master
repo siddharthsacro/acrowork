@@ -1,0 +1,1016 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="~/FHB.master.cs" Inherits="ACAMS.FHB" %>
+
+<%@ Register Src="~/UserControls/UCCMSLeftMenu.ascx" TagName="UCCMSLeftMenu" TagPrefix="UCMenu" %>
+<%@ Register Src="~/UserControls/MenuAlert.ascx" TagPrefix="UCMenuAlert" TagName="MenuAlert" %>
+<%@ Register Src="~/UserControls/UCCommonPopup.ascx" TagName="UCCommonPopup" TagPrefix="UCPopup" %>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Welcome to Polk County</title>
+    <!-- Bootstrap Styles-->
+    <!--[if IE]>    
+<style>
+    .browser-msg {
+         display:none;
+    }
+</style>
+<![endif]-->
+    <link href="<%= ResolveClientUrl("~/Content/NewCss/bootstrap/bootstrap.css")%>" rel="stylesheet" />
+    <link href="<%= ResolveClientUrl("~/Content/css/jquery-ui.css")%>" rel="stylesheet" />
+    <link href="<%= ResolveClientUrl("~/Content/NewCss/kendo/kendo.bootstrap.min.css")%>" rel="stylesheet" />
+    <link href="<%= ResolveClientUrl("~/Content/NewCss/kendo/kendo.common-bootstrap.min.css")%>" rel="stylesheet" />
+    <%--<link href="<%= ResolveClientUrl("~/Content/NewCss/kendo/kendo-treeview.css")%>" rel="stylesheet" />--%>
+    <link href="<%= ResolveClientUrl("~/Scripts/Plugin_JS_CSS/multiselect/bootstrap-multiselect.css")%>" rel="stylesheet" />
+    <link href="<%= ResolveClientUrl("~/Scripts/Plugin_JS_CSS/select_autocompleate/css/bootstrap-chosen.css")%>" rel="stylesheet" />
+
+    <link rel="icon" type="image/x-icon" href="<%= ResolveClientUrl("~/images/favicon.ico")%>" />
+    <!-- Font Icons -->
+    <link href="<%= ResolveClientUrl("~/Scripts/Plugin_JS_CSS/font-awesome/css/font-awesome.css")%>" rel="stylesheet" />
+    <link href="<%= ResolveClientUrl("~/Scripts/Plugin_JS_CSS/flateicon/css/flaticon.css")%>" rel="stylesheet" />
+    <link href="<%= ResolveClientUrl("~/Content/acams-icons/css/acams-fonts-embedded.css")%>" rel="stylesheet" />
+
+    <!-- Custom Files -->
+    <link href="<%= ResolveClientUrl("~/Content/NewCss/bootstrap/overwrite.css")%>" rel="stylesheet" />
+    <link href="<%= ResolveClientUrl("~/Content/NewCss/helper.css")%>" rel="stylesheet" />
+    <link href="<%= ResolveClientUrl("~/Content/NewCss/style.css")%>" rel="stylesheet" />
+    <%-- <link href="<%= ResolveClientUrl("~/Content/NewCss/Disable-edu.css") %>" rel="stylesheet" />--%>
+    <link id="MyStyleSheet" rel="stylesheet" type="text/css" runat="server" />
+    <%--KENDO JS--%>
+
+    <script src="<%=ResolveClientUrl("~/Scripts/jquery-1.9.1.min.js")%>"></script>
+    <script>
+        var btnsrchId = '<%= btnsearch.UniqueID%>';
+    </script>
+    <script src="<%=ResolveClientUrl("~/Scripts/Kendo/kendo.custom.min.js")%>"></script>
+    <script src="<%=ResolveClientUrl("~/Scripts/Design_JS/bootstrap.min.js")%>"></script>
+    <script src="<%=ResolveClientUrl("~/Scripts/Plugin_JS_CSS/select_autocompleate/js/chosen.jquery.js")%>"></script>
+
+    <%--<script src="<%=ResolveClientUrl("~/Scripts/StringDE.js")%>"></script>--%>
+    <script src="<%=ResolveClientUrl("~/Scripts/fhbMaster.js")%>"></script>
+    <script src="<%=ResolveClientUrl("~/Scripts/Design_JS/program-identifier.js")%>"></script>
+    <script src="<%=ResolveClientUrl("~/Scripts/ValidationHelpers.js")%>"></script>
+    <script src="<%=ResolveClientUrl("~/Scripts/Plugin_JS_CSS/multiselect/bootstrap-multiselect.js")%>"></script>
+    <script src="<%=ResolveClientUrl("~/Scripts/Plugin_JS_CSS/pdf/html2canvas.js")%>"></script>
+    <script src="<%=ResolveClientUrl("~/Scripts/Plugin_JS_CSS/pdf/html2canvas.js")%>"></script>
+    <script src="<%=ResolveClientUrl("~/Scripts/Plugin_JS_CSS/pdf/jspdf.debug.js")%>"></script>
+    <%--<script src="<%=ResolveClientUrl("~/Scripts/Kendo/kendo.tree.min.js")%>"></script>--%>
+    <%--    For top scroll--%>
+    <script src="<%=ResolveClientUrl("~/Scripts/Design_JS/jquery.backTop.js")%>"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#backTop').backTop({
+                'position': 100,
+                'speed': 500,
+                'color': 'red',
+            });
+
+            $('[data-toggle="ACAMS-tooltip"]').tooltip();
+
+
+
+        });
+
+    </script>
+    <%--    For top scroll--%>
+
+
+    <script>
+
+        function runScript(e) {
+            AlphaNumericSpecialwithemail(e);
+
+            if (e.keyCode == 13) {
+                $("[id*=btnexisting]").click(function () { return false })
+                $('#searchtextbox').val($('#searchtextbox').val().replace('’', "'"));
+                SearchRecords();
+                return false;
+            }
+        }
+        function SearchRecords() {
+            $('#searchtextbox').val($('#searchtextbox').val().replace('’', "'"));
+            if ($('#searchtextbox').val().trim().length < 3) {
+                alrtMessageList.length = 0;
+                //alert("Please enter minimum 3 letters of Client information to search !");
+                alrtMessageList.push({ msg: alertMessages.msgMinThreeChar, id: "searchtextbox", cls: "" });
+                return alertSummary(alrtTitle, alrtMessageList);
+                // alertCommonPopup(alrtSuccessTitle, alertMessages.msgSaveAppointmnt);
+                //  $('#searchtextbox').focus();
+                //  return false;
+            }
+            if ($('[id*=hdfpagename]').val() == '1') // 1 means confirm dialogue box will apper
+            {
+                //  var r = false;//confirm("You are being redirected to another page, Do you want to continue?");
+                $("#hdnRedirect").val("searchRedirectPage");
+                return confirmCommonPopup(alrtConfirmation, alertMessages.msgRedirectToAnotherPage);
+
+            }
+
+           <%-- if ($('#searchtextbox').val().trim().length < 3) {
+                alert("Please enter minimum 3 letters of Client information to search !");
+                $('#searchtextbox').focus();
+                return false;
+            }--%>
+            else {
+
+                __doPostBack('<%= btnsearch.UniqueID%>', '');
+
+            }
+            return false;
+        }
+
+        function AlphaNumericSpecialwithemail(event) {
+            var illigalChar = /[^a-zA-Z0-9-@', ./]/g;
+
+            if (illigalChar.test(String.fromCharCode(event.which))) {
+                event.preventDefault();
+                return false;
+            }
+        }
+
+    </script>
+
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $.post('<%=ResolveClientUrl("~/Shared/Notification/MenuAlertNotification.ashx")%>', { 'id': '1' }, function (response) {
+                $('#divResult').html(response);
+                $('[data-toggle="ACAMS-tooltip"]').tooltip();
+
+            });
+
+            $.post('<%=ResolveClientUrl("~/Shared/Notification/EmailAlertNotification.ashx")%>', { 'id': '1' }, function (response) {
+                $('#divEmailCount').html(response);
+            });
+
+
+            //InitializeSession();
+            window.setInterval(function () {
+                searchSearch('hello');
+            }, 5000);
+
+
+        });
+    </script>
+
+
+
+
+
+
+
+
+
+
+    <script type="text/javascript">
+        <%--function InitializeSession() {
+            var sessionTimeout = "<%= Session.Timeout %>";
+            $('[id*=LblSessionTime]').empty()
+            $('[id*=LblSessionTime]').append(sessionTimeout);
+        }--%>
+        function searchSearch(strVal) {
+
+            $.post('<%=ResolveClientUrl("~/Shared/Notification/MenuAlertNotification.ashx")%>', { 'id': '1' }, function (response) {
+                $('#divResult').html(response);
+                $('[data-toggle="ACAMS-tooltip"]').tooltip();
+            });
+
+            $.post('<%=ResolveClientUrl("~/Shared/Notification/EmailAlertNotification.ashx")%>', { 'id': '1' }, function (response) {
+                $('#divEmailCount').html(response);
+            });
+        }
+
+
+
+
+    </script>
+    <script type="text/javascript">
+
+        <%--var sessionTimeout = "<%= Session.Timeout %>";
+        function GetSessionTimeOut() {
+            $('[id*=LblSessionTime]').empty();
+            sessionTimeout = sessionTimeout - 1;
+            $('[id*=LblSessionTime]').append(sessionTimeout);
+            //if session is not less than 0
+            if (sessionTimeout == 5) {
+
+                alrtMessageList.length = 0;
+                alrtMessageList.push({ msg: alertMessages.SessionOver + ' ' + sessionTimeout + ' Minutes', id: '', cls: "" });
+                return alertSummary(alrtTitle, alrtMessageList);
+            }
+            else if (sessionTimeout == 0) {
+                window.open("../../Login.aspx");
+            }
+
+            //return alertSummary(alrtTitle, alrtMessageList);
+
+        }--%>
+    </script>
+
+    <script type="text/javascript">
+        history.pushState(null, null);
+        window.addEventListener('popstate', function (event) {
+            history.pushState(null, null);
+        });
+    </script>
+
+
+    <style>
+        /*.tooltip{width:200px}*/
+        .QA-logo-holder {
+            display: none;
+        }
+
+        .PREPROD-logo-holder {
+            display: none;
+        }
+
+        .training-logo-holder {
+            display: none;
+        }
+
+
+        /*Traning EDU*/
+        /*#sidebar-menu {
+    width: 100%;
+    background-color: #fdfd6e !important;
+    padding-bottom: 50px;
+}
+
+
+
+
+.family-first #wrapper.enlarged .left.side-menu {
+    padding-top: 0px;
+    border-right: 2px solid #fdfd6e;
+    background-color:#fafac1 !important;
+}
+
+
+
+.cms #wrapper.enlarged .left.side-menu {
+    padding-top: 0px;
+    border-right: 2px solid #d59d9b;
+background-color:#fdfd6e !important;
+}
+
+
+
+.newborn-hearing #wrapper.enlarged .left.side-menu {
+    padding-top: 0px;
+    border-right: 2px solid #73D375;
+background-color:#fdfd6e !important;
+}
+
+
+.newborn-genetics #wrapper.enlarged .left.side-menu {
+    padding-top: 0px;
+    border-right: 2px solid #F9BF69;
+background-color:#fdfd6e !important;
+}
+
+
+.sidebar-inner {
+    height: 100%;
+    background-color:#fdfd6e !important;
+}
+
+     .training {
+    color: #fe6700;
+    float: left;
+    font-size: 33px;
+    font-weight: bold;
+    padding: 10px 5px 5px 0px;
+}
+
+.training_1{ color:#fe6700; padding:0px 5px 5px 637px; font-size: 46px; font-weight:bold; float:left;}
+
+.train-show{display:block !important}
+.dev-logo-holder {
+display:none;
+}
+.training-logo-holder {
+display:block;
+}
+.cactus-logo-training {
+    height: 70px;
+    width: 521px;
+    margin:0 auto;
+   margin-left:75px
+}
+            
+            .QA-logo-holder {
+display:none;
+}
+           */
+
+        /*Traning EDU*/
+
+
+
+
+
+        /*QA Start*/
+
+        /*    #sidebar-menu {
+    width: 100%;
+    background-color: #ff61ff !important;
+    padding-bottom: 50px;
+}
+
+
+.family-first #wrapper.enlarged .left.side-menu {
+    padding-top: 0px;
+    border-right: 2px solid #db49dd;
+    background-color:#ff61ff !important;
+}
+
+.cms #wrapper.enlarged .left.side-menu {
+    padding-top: 0px;
+    border-right: 2px solid #db49dd;
+background-color:#ff61ff !important;
+}
+
+.newborn-hearing #wrapper.enlarged .left.side-menu {
+    padding-top: 0px;
+    border-right: 2px solid #db49dd;
+background-color:#ff61ff !important;
+}
+
+.newborn-genetics #wrapper.enlarged .left.side-menu {
+    padding-top: 0px;
+    border-right: 2px solid #db49dd;
+background-color:#ff61ff !important;
+}
+
+.sidebar-inner {
+    height: 100%;
+    background-color:#ff61ff !important;
+}
+
+.QA-logo-holder{ display:block;
+                    
+}
+
+.QA{
+    color: #a020a0;
+    float: left;
+    font-size: 33px;
+    font-weight: bold;
+    padding: 11px 5px 5px 0px;
+}
+
+
+.cactus-logo-QA {
+    height: 70px;
+    width: 521px;
+    margin:0 auto;
+    margin-left:150px
+
+}
+.dev-logo-holder {
+display:none;
+}
+*/
+
+        /*QA End*/
+
+
+
+        /*PREPROD Start*/
+
+        /*
+   #sidebar-menu {
+    width: 100%;
+    background-color: #b0fcf4 !important;
+    padding-bottom: 50px;
+}
+
+
+
+.family-first #wrapper.enlarged .left.side-menu {
+    padding-top: 0px;
+    border-right: 2px solid #db49dd;
+    background-color:#8CECE2 !important;
+}
+
+
+
+.cms #wrapper.enlarged .left.side-menu {
+    padding-top: 0px;
+    border-right: 2px solid #db49dd;
+background-color:#8CECE2 !important;
+}
+
+
+
+.newborn-hearing #wrapper.enlarged .left.side-menu {
+    padding-top: 0px;
+    border-right: 2px solid #db49dd;
+background-color:#8CECE2 !important;
+}
+
+
+.newborn-genetics #wrapper.enlarged .left.side-menu {
+    padding-top: 0px;
+    border-right: 2px solid #db49dd;
+background-color:#8CECE2 !important;
+}
+
+     .PREPROD-logo-holder { display:block;
+
+        }
+
+
+
+      
+         .PREPROD {
+    color: #40b1a5;
+    float: left;
+    font-size: 33px;
+    font-weight: bold;
+    padding: 10px 5px 5px 0px;
+}
+
+
+.cactus-logo-PREPROD {
+    height: 70px;
+    width: 600px;
+    margin:0 auto;
+    margin-left:81px
+
+}
+
+.QA-logo-holder {
+    display:none;
+}
+
+
+
+.dev-logo-holder {
+    display:none;
+}
+
+.training-logo-holder{
+         display:none
+    }
+
+.sidebar-inner {
+    height: 100%;
+    background-color:#b0fcf4 !important;
+}*/
+        /*PREPROD End*/
+
+
+
+
+
+        .tooltip.top-left .tooltip-arrow {
+            bottom: -5px;
+            left: 5px;
+            border-width: 5px 5px 0;
+            border-top-color: black !important;
+        }
+
+        .tooltip.top-right .tooltip-arrow {
+            bottom: -5px;
+            right: 5px;
+            border-width: 5px 5px 0;
+            border-top-color: black !important;
+        }
+
+        .tooltip.bottom-left .tooltip-arrow {
+            top: -5px;
+            left: 5px;
+            border-width: 0 5px 5px;
+            border-bottom-color: black !important;
+        }
+
+        .tooltip.bottom-right .tooltip-arrow {
+            top: -5px;
+            right: 5px;
+            border-width: 0 5px 5px;
+            border-bottom-color: black !important;
+        }
+
+
+        .k-pager-numbers .k-link,
+        .k-pager-numbers .k-link:hover,
+        .k-pager-numbers .k-state-selected {
+            border-radius: 0;
+        }
+
+        .k-pager-wrap > .k-link {
+            border-radius: 0;
+        }
+        /*added by pawank*/
+        .lightbox-overlay {
+            background: #000;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            z-index: 999999;
+            filter: alpha(opacity=40);
+            opacity: 0.4;
+        }
+        /*end added by pawank*/
+    </style>
+    <asp:ContentPlaceHolder ID="head" runat="server">
+    </asp:ContentPlaceHolder>
+</head>
+<body class="fixed-left" oncontextmenu="return disablerightclick();">
+    <div id="browser-error" class="browser-msg">
+        <div class="error-popup">
+            <div class="error-logo">
+                <img src='<%= ResolveClientUrl("~/images/ACAMS.jpg")%>' border="0" />
+            </div>
+            <h4>FHB-ACAMS System is compatible with Internet Explorer Browser version 11 or higher  </h4>
+            <p>Please change your Browser to Internet Explorer 1 1 </p>
+        </div>
+    </div>
+    <div id="loader-acams" class="loaderWrap">
+        <div class="loader">
+            <img src='<%= ResolveClientUrl("~/images/loader_2.gif")%>' border="0" />
+            <div class="loading-txt">ACAMS is Loading...</div>
+        </div>
+    </div>
+    <form id="form1" runat="server">
+        <UCPopup:UCCommonPopup ID="UCCommonPopup1" runat="server" />
+        <div class="loaderWrapTrans" id="trans-waiting">
+            <div class="loaderTrans">
+                <img src='<%= ResolveClientUrl("~/images/loader_2.gif")%>' border="0" />
+                <div class="loading-txt">
+                    ACAMS is Loading...
+                </div>
+            </div>
+        </div>
+
+        <asp:ScriptManager ID="ScriptManager1" runat="server">
+        </asp:ScriptManager>
+
+        <%--Added the hidden filed--%>
+        <asp:HiddenField ID="hdnloginName" runat="server" />
+        <asp:HiddenField ID="hdfpagename" runat="server" />
+        <asp:HiddenField ID="hdnProgramName" runat="server" />
+        <%-- <asp:HiddenField ID="hdnRedirect" ClientIDMode="Static" runat="server" Value="" />--%>
+        <%--        <div id="wrapper" class="enlarged" oncontextmenu=" return disableRightClick();">--%>
+        <div id="wrapper" class="enlarged">
+            <%--for prevent multiple click on submit button added by pawank--%>
+            <%--<div id="div_onsubmit" class="lightbox-overlay" style="display: none"></div>--%>
+            <div id="waitDocs" class="loaderWrapTrans" style="display: none">
+                <div class="loaderTrans">
+                    <img src='<%= ResolveClientUrl("~/images/loader_2.gif")%>' border="0" />
+                    <div class="loading-txt">
+                        ACAMS is Loading...
+                    </div>
+                </div>
+            </div>
+            <%--for alert popup and confirmation popup added by pawank--%>
+            <%--<div id="divoverlaysuccess" class="lightbox-overlay" style="display: none"></div>
+            <div id="divalert" class="light-box" style="display: none">
+                <div id="divheader" class="light-box-heading"></div>
+                <div class="light-box-body">
+                    <span id="spnMessage" class="lightbox-msg-style" style="text-align: left"></span>
+                    <div class="bottombut-PLTR">
+                        <input type="button" id="btnClosePopup" class="btn btn-primary gradient clsbtnClose" style="width: 127px !important; padding: 4px 9px" value="Ok" />
+                    </div>
+                </div>
+            </div>--%>
+            <%--end for alert popup added by pawank--%>
+            <%--for confirmation popup by pawank--%>
+            <%--  <div id="divalertConfirm" class="light-box" style="display: none">
+                <div id="divheaderConfirm" class="light-box-heading"></div>
+                <div class="light-box-body">
+                    <span id="spnMessageConfirm" class="lightbox-msg-style" style="text-align: left"></span>
+                    <div class="bottombut-PLTR">
+                        <input type="button" id="btnYesPopupConfirm" class="btn btn-success gradient" style="width: 127px !important; padding: 4px 9px" value="Yes" />
+                        <input type="button" id="btnNoPopupConfirm" class="btn btn-danger gradient" style="width: 127px !important; padding: 4px 9px" value="No" />
+                    </div>
+                </div>
+            </div>--%>
+            <%--end for confirmation popup by pawank--%>
+
+            <!--head-->
+            <header class="main-header">
+                <!--TopBar-Start-->
+                <div class="topbar">
+                    <div class="navbar navbar-default " role="navigation">
+                        <div class="container-fluid p-l-15 p-r-15">
+                            <div class="dropdown-topbar">
+                                <div class="prog pull-left">
+                                    <span id="user-name" class="user-name m-l-10"></span>
+                                </div>
+                                <ul class="nav navbar-nav navbar-right pull-right" data-toggle="ACAMS-tooltip" data-placement="left" title="My Profile">
+
+                                    <li class="dropdown hidden-xs profile-drop">
+                                        <a aria-expanded="false" href="#" data-toggle="dropdown" class="dropdown-toggle">
+                                            <i class="flaticon-people"></i>
+                                            <i class="fa fa-caret-down"></i>
+                                        </a>
+                                        <ul class="dropdown-menu top-bar-dropD">
+                                            <li>
+                                                <asp:LinkButton runat="server" ID="lnkUserProfile" OnClick="lnkUserProfile_Click"><i class="fa fa-cog"></i> My Profile</asp:LinkButton>
+                                            </li>
+                                            <%--<li>
+                                                <asp:LinkButton runat="server" ID="LinkButton2"><i class="fa fa-genderless"></i> Role</asp:LinkButton>
+                                            </li>--%>
+                                            <li>
+                                                <asp:LinkButton runat="server" ID="lnkLogout" OnClick="lnkLogout_Click"><i class="fa fa-power-off"></i> Logout</asp:LinkButton>
+                                            </li>
+
+                                        </ul>
+                                    </li>
+
+                                </ul>
+
+
+
+
+                                <%-- <UCMenuAlert:MenuAlert ID="UCMenuAlertControl" runat="server" />--%>
+                                                           
+                                <ul class="nav navbar-nav navbar-right pull-right">
+                                    <li data-placement="left" data-toggle="ACAMS-tooltip" title="Logout" class="dropdown hidden-xs">
+                                        <asp:LinkButton runat="server" ID="LinkButton1" OnClick="lnkLogout_Click"><i class="acams-power"></i>
+                                        </asp:LinkButton>
+                                    </li>
+
+                                </ul>
+
+
+
+
+
+                                <ul class="nav navbar-nav navbar-right pull-right">
+                                    <li id="cmd" data-placement="left" data-toggle="ACAMS-tooltip" title="Print To PDF" class="dropdown hidden-xs">
+                                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                            <i class="flaticon-technology-2"></i>
+                                        </a></li>
+
+                                </ul>
+       
+                                <ul class="nav navbar-nav navbar-right pull-right">
+                                    <li class="dropdown hidden-xs" data-toggle="ACAMS-tooltip" data-placement="left" title="ACAMS Internal Messaging">
+                                        <asp:LinkButton ID="lnkEmail" runat="server" OnClick="lnkEmail_Click" >
+                                            <i class="flaticon-back">
+                                                <div id="divEmailCount" runat="server">
+                                                </div>
+                                            </i>
+                                        </asp:LinkButton>
+                                    </li>
+
+                                </ul>
+                                 
+                               <%--  <ul class="nav navbar-nav navbar-right pull-right helpdrop" data-toggle="ACAMS-Help" data-placement="left" title="My Help">
+                                     <li class="dropdown hidden-xs">
+                                    <a href="#" data-target="#" class="dropdown-toggle waves-effect waves-light" data-toggle="dropdown" aria-expanded="true">
+                                         <img src='<%= ResolveClientUrl("~/images/info.png")%>' border="0" />
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-lg">
+                                        <li class="text-center notifi-title">Manuals</li>
+                                        <li class="list-group">
+                                           <!-- list item-->
+                                           <a href="javascript:void(0);" class="list-group-item">
+                                              <div class="media">
+                                                 <div class="pull-left">
+                                                    <em class="fa fa-user-plus fa-2x text-info"></em>
+                                                 </div>
+                                                 <div class="media-body clearfix">
+                                                    <div class="media-heading">User Manual</div>
+                                                   
+                                                 </div>
+                                              </div>
+                                           </a>
+                                           <!-- list item-->
+                                            <a href="javascript:void(0);" class="list-group-item">
+                                              <div class="media">
+                                                 <div class="pull-left">
+                                                    <em class="fa fa-diamond fa-2x text-primary"></em>
+                                                 </div>
+                                                 <div class="media-body clearfix">
+                                                    <div class="media-heading">Program Manual</div>
+                                                    
+                                                 </div>
+                                              </div>
+                                            </a>
+                                    
+                                        </li>
+                                    </ul>
+                                </li>
+                                 </ul>
+                                --%>
+                                <%-- <ul class="nav navbar-nav navbar-right pull-right">
+                                  <li title="Save as PDF"  class="dropdown hidden-xs">
+                                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                            <i class="fa fa-file-pdf-o"></i>
+                                        </a>
+                                    </li>
+                                </ul>   --%>
+                                <div id="divResult" runat="server"></div>
+                                <%--             <ul class="nav navbar-nav navbar-right pull-right">
+                                    <li class="dropdown hidden-xs">
+                                      
+
+                                    </li>
+
+                                </ul>--%>
+
+<%--                               <ul class="nav navbar-nav navbar-right pull-right">
+                                    <li  data-placement="left" data-toggle="ACAMS-tooltip" title="Back To Search" class="dropdown hidden-xs">
+                                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                           <img src='<%= ResolveClientUrl("~/images/back-icon.png")%>' border="0" />
+                                           
+                                        </a></li>
+
+                                </ul>--%>
+                                    
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <!--TopBar-End-->
+                <div class="brand-bar">
+                    <div class="container-fluid p-l-15 p-r-15">
+                        <div class="col-lg-8 col-md-8">
+                            <div class="main-logo pull-left">
+                                <a href='<%=ResolveClientUrl("landingpage.aspx")%>'>
+                                    <img src='<%= ResolveClientUrl("~/images/ACAMS.jpg")%>' border="0" style="padding-top: 18px;" />
+                                </a>
+
+                            </div>
+                            <div class="pull-left m-l-10 p-t-5">
+                                <a href="#" class="button-menu-mobile open-left m-l-10">
+                                    <i class="fa fa-bars"></i>
+                                </a>
+                            </div>
+                            <div role="search" class="navbar-form pull-left header-search">
+                                <div class="form-group p-t-5">
+                                    <asp:TextBox runat="server" ID="searchtextbox" onblur="checkSpecialCharacterForGlobalSearch(this.id,this.value)" ToolTip="Last Name, First Name, DOB, SSN, MPI #, Case #, Email, Client Contact #" MaxLength="50" placeholder="Search" onkeypress="return runScript(event)"></asp:TextBox>
+
+                                    <asp:LinkButton runat="server" ID="btnsearch" OnClientClick="return SearchRecords()" OnClick="SearchRecords"><i class="fa fa-search"></i></asp:LinkButton>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-8 col-md-8 dev-logo-holder">
+                            <div class="cactus-logo">
+                                
+                          <img src='<%= ResolveClientUrl("~/images/CACTUS.png")%>' border="0" style="padding-top: 23px;" />
+                            </div>
+
+                        </div>
+
+
+                        <div class=" col-lg-8 col-md-8 training-logo-holder">
+                            <div class="cactus-logo-training">
+                                <img src='<%= ResolveClientUrl("~/images/CACTUS.png")%>' border="0" style="padding: 20px 30px 0px 0px; float: left" />
+
+                                <div class="training">TRAINING</div>
+
+                            </div>
+                        </div>
+
+                        <div class=" col-lg-8 col-md-8 QA-logo-holder">
+                            <div class="cactus-logo-QA">
+                                <img src='<%= ResolveClientUrl("~/images/CACTUS.png")%>' border="0" style="padding: 20px 30px 0px 0px; float: left" />
+
+                                <div class="QA">QA</div>
+
+                            </div>
+                        </div>
+
+                        <div class=" col-lg-8 col-md-8 PREPROD-logo-holder">
+                            <div class="cactus-logo-PREPROD">
+                                <img src='<%= ResolveClientUrl("~/images/CACTUS.png")%>' border="0" style="padding: 20px 30px 0px 0px; float: left" />
+
+                                <div class="PREPROD">PRE-PROD</div>
+
+                            </div>
+                        </div>
+
+                       
+
+
+
+
+                        <div class="pull-right">
+                            <div class="megabtn">
+                                <span class="pop_ctrl m-r-10">
+                                    <img id="progImg" src='<%= ResolveClientUrl("~/images/NewMexico.jpg")%>' border="0" />
+                                </span>
+                                <%--this is use for showing quick menu--%>
+                                <asp:HiddenField ID="hdnTopMenu" runat="server" Value="0" />
+                                <ul id="mastrMenuShowOnCondition" class="megamenu hide-content clearfix">
+                                    <li id="liCaseClosure" runat="server" visible="false">
+                                        <asp:LinkButton ID="lnkCaseClosure" runat="server" Font-Underline="false" OnClick="lnkCaseClosure_Click">
+                                            <img id="imgCaseClosure" src='<%= ResolveClientUrl("~/images/case-closure.png")%>' height="49" border="0" />
+                                            <span style="padding-top:21px;">Case Closure</span>
+                                        </asp:LinkButton>
+                                    </li>
+                                    <li id="liProgressNote" runat="server" visible="false">
+                                        <asp:LinkButton ID="lnkProgressNote" runat="server" Font-Underline="false" OnClick="lnkProgressNote_Click">
+                                           <img id="imgProgressNote" src='<%= ResolveClientUrl("~/images/note.png")%>' height="50" border="0" />
+                                            <span style="padding-top:21px;">Progress Note</span>
+                                        </asp:LinkButton>
+                                    </li>
+
+                                    <li id="liRefFollowUp" runat="server" visible="true">
+                                        <asp:LinkButton ID="LiRefferalFollowUP" runat="server" OnClick="LiRefferalFollowUP_Click">
+                                           <img  src='<%= ResolveClientUrl("~/images/Referral-followup.png")%>' height="65" border="0" />
+                                            <span style="padding-top:13px;">Referral Follow-Up</span>
+                                        </asp:LinkButton>
+                                    </li>
+
+                                    <li id="liNBGFollow" runat="server" visible="false">
+                                        <asp:LinkButton ID="LiNBGFollowUp" runat="server" OnClick="LiNBGFollowUp_Click">
+                                           <img  src='<%= ResolveClientUrl("~/images/Referral-followup-ff.png")%>' height="65" border="0" />
+                                            <span style="padding-top:13px;">NBG Follow-Up</span>
+                                        </asp:LinkButton>
+                                    </li>
+
+                                    <%--    <li id="liImmunization" runat="server" visible="false">
+                                        <asp:LinkButton ID="lnkImmunization" runat="server" Font-Underline="false" OnClick="lnkImmunization_Click">
+                                            <i class="flaticon-painting"></i>
+                                            <span>Immunization</span>
+                                        </asp:LinkButton>
+                                    </li>--%>
+                                    <li runat="server" id="liReview" visible="false">
+                                        <asp:LinkButton ID="lnkReview" runat="server" Font-Underline="false" OnClick="lnkReview_Click">
+                                           <img  src='<%= ResolveClientUrl("~/images/review-icon.png") %>' border="0"  height="58"  style="padding-left:13px" />
+                                            <span style="padding-top:17px">Review</span>
+                                        </asp:LinkButton>
+                                    </li>
+                                    <%--currently not in use--%>
+                                    <%--  <li id="liBilling" runat="server" visible="false">
+                                        <asp:LinkButton ID="LinkButton7" runat="server" Font-Underline="false" PostBackUrl="~/Shared/Billing/InvoiceSearch.aspx">
+                                            <i class="flaticon-money"></i>
+                                            <span>Billing </span>
+                                        </asp:LinkButton>
+                                    </li>--%>
+                                    <%--<li id="liMasterServicePlan" runat="server" visible="false">
+                                        <asp:LinkButton ID="mMsterServicPlan" runat="server" Font-Underline="false" OnClick="mMsterServicPlan_Click">
+                                            <i class="flaticon-business-2"></i>
+                                            <span>Service Plan</span>
+                                        </asp:LinkButton>
+                                    </li>--%>
+
+
+                                    <li id="mdapproval" runat="server" visible="false">
+                                        <asp:LinkButton ID="lnkMDApproval" runat="server" Font-Underline="false" OnClick="lnkMDApproval_Click">
+                                            <i class="flaticon-icon-55114"></i>
+                                            <span>MD Approval</span>
+                                        </asp:LinkButton>
+                                    </li>
+                                    <li id="liTimeCapture" runat="server" visible="false">
+                                        <asp:LinkButton ID="lnkTimeCapture" runat="server" Font-Underline="false" OnClick="lnkTimeCapture_Click"><%--OnClick="LinkButton5_Click"--%>
+                                            <i class="flaticon-clock-1"></i>
+                                            <span>Time Capture</span>
+                                        </asp:LinkButton>
+                                    </li>
+                                    <li id="liReferralClosure" runat="server" visible="false">
+                                        <asp:LinkButton ID="lnkReferralClousre" runat="server" OnClick="lnkReferralClousre_Click" Font-Underline="false">
+                                             <img src='<%= ResolveClientUrl("~/images/ref-clo-icon.png")%>' height="50" border="0" />
+                                            <span style="padding-top:21px;">Referral Summary</span>
+                                        </asp:LinkButton>
+                                    </li>
+
+                                    <li id="liReferralServiceUnit" runat="server" visible="false">
+                                        <asp:LinkButton ID="lnkReferralServiceUnit" runat="server" Font-Underline="false" OnClick="lnkReferralServiceUnit_Click">
+                                              <img src='<%= ResolveClientUrl("~/images/rel-serv.png")%>' height="54" border="0" />
+                                            <span style="padding-top:19px;">Referral Services</span>
+                                        </asp:LinkButton>
+                                    </li>
+                                    <li id="liAssessment" runat="server" visible="false">
+                                        <asp:LinkButton ID="lnkAssessment" runat="server" Font-Underline="false" OnClick="lnkAssessment_Click">
+                                            <i class="flaticon-notebook"></i>
+                                            <span>Assessment</span>
+                                        </asp:LinkButton>
+                                    </li>
+                                    <li id="liFollowup" runat="server" visible="false">
+                                        <asp:LinkButton ID="lnkFollowup" runat="server" Font-Underline="false" OnClick="lnkFollowup_Click">
+                                           <i class="flaticon-technology-1"></i>                                          
+                                            <span> Follow-Up</span>
+                                        </asp:LinkButton>
+                                    </li>
+                                    <li id="liAppointment" runat="server" visible="false">
+                                        <asp:LinkButton ID="lnkAppointment" runat="server" OnClick="lnkAppointment_Click" Font-Underline="false">
+                                            <i class="flaticon-agenda"></i>
+                                            <span>Appointment </span>
+                                        </asp:LinkButton>
+                                    </li>
+
+                                    <li id="liCmsCard" runat="server" visible="false">
+                                        <asp:LinkButton runat="server" Font-Underline="false" OnClick="lnkCmsCard_Click">
+                                            <i class="flaticon-profile"></i>
+                                            <span>CMS Card</span>
+                                        </asp:LinkButton>
+                                    </li>
+
+
+                                    <li runat="server" id="lnkPaCard" visible="false">
+                                        <asp:LinkButton runat="server" PostBackUrl="~/CMS/Reports/PAForm.aspx" Font-Underline="false">
+                                            <i class="flaticon-business-1"></i>
+                                            <span>Services</span>
+                                        </asp:LinkButton>
+                                    </li>
+
+
+
+
+
+
+                                    <li runat="server" id="lnk501Task" visible="false">
+                                        <asp:LinkButton runat="server" PostBackUrl="~/Shared/CMS501.aspx" Font-Underline="false">
+                                            <img src='<%= ResolveClientUrl("~/images/501.png")%>' height="50" border="0" />
+                                            <span style="padding-top:23px">501 Task Form</span>
+                                        </asp:LinkButton>
+                                    </li>
+
+
+
+                                </ul>
+                            </div>
+                        </div>
+
+
+
+
+
+
+
+                        <div>
+                        </div>
+
+
+
+                    </div>
+                </div>
+                <!--Barndbar-End-->
+
+            </header>
+            <div class="left side-menu">
+                <div class="sidebar-inner slimscrollleft">
+                    <%----%>
+                    <!-- Divider -->
+                    <div id="sidebar-menu">
+                        <UCMenu:UCCMSLeftMenu runat="server" ID="UCCMSLeftMenu" />
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+            <div>
+                <asp:ContentPlaceHolder ID="body" runat="server">
+                </asp:ContentPlaceHolder>
+            </div>
+            <a id='backTop'></a>
+
+        </div>
+        <!--Side menu bar-->
+        <script>
+            var resizefunc = [];
+        </script>
+        <script src="<%=ResolveClientUrl("~/Scripts/Plugin_JS_CSS/jquery-detectmobile/detect.js")%>"></script>
+        <script src="<%=ResolveClientUrl("~/Scripts/Plugin_JS_CSS/fastclick/fastclick.js")%>"></script>
+        <script src="<%=ResolveClientUrl("~/Scripts/Plugin_JS_CSS/jquery-slimscroll/jquery.slimscroll.js")%>"></script>
+        <script src="<%=ResolveClientUrl("~/Scripts/Plugin_JS_CSS/fastclick/fastclick.js")%>"></script>
+        <script src="<%=ResolveClientUrl("~/Scripts/Design_JS/jquery.app.js")%>"></script>
+        <script src="<%=ResolveClientUrl("~/Scripts/Design_JS/menu.js")%>"></script>
+        <script src="<%=ResolveClientUrl("~/Scripts/Design_JS/browserdetect.js")%>"></script>
+        <script>
+            $(document).ready(function () {
+                var pdf = new jsPDF('p', 'pt', 'a4');
+                var specialElementHandlers = {
+                    '#editor': function (element, renderer) {
+                        return true;
+                    }
+                };
+
+                $('#cmd').click(function () {
+                    pdf.addHTML(document.body, function () {
+                        pdf.save('web.pdf');
+                    });
+
+
+                });
+            });
+
+        </script>
+        <script>
+
+            function printWindow() {
+                window.print();
+            }
+        </script>
+
+    </form>
+
+
+</body>
+</html>
